@@ -6,9 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "boards")
@@ -31,11 +29,11 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     @Builder.Default
-    private List<BoardColumn> columns = new ArrayList<>();
+    private Set<BoardColumn> columns = new HashSet<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<BoardMember> members = new ArrayList<>();
+    private Set<BoardMember> members = new HashSet<>();
 
     @Column(name = "created_at", updatable = false)
     @Builder.Default
