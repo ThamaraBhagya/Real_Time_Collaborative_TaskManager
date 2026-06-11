@@ -1,0 +1,25 @@
+// src/main/java/com/taskflow/common/response/ApiResponse.java
+package com.taskflow.taskflow_api.common.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@Data @Builder @AllArgsConstructor
+public class ApiResponse<T> {
+    private boolean success;
+    private T data;
+    private String message;
+
+    public static <T> ApiResponse<T> ok(T data) {
+        return ApiResponse.<T>builder().success(true).data(data).build();
+    }
+
+    public static <T> ApiResponse<T> ok(T data, String message) {
+        return ApiResponse.<T>builder().success(true).data(data).message(message).build();
+    }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return ApiResponse.<T>builder().success(false).message(message).build();
+    }
+}
