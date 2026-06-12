@@ -45,7 +45,8 @@ public class SecurityConfig {
                         // Public endpoints — no token needed
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/ws/**"          // WebSocket endpoint (Phase 4)
+                                "/ws/**",
+                                "/ws/info**" // WebSocket endpoint (Phase 4)
                         ).permitAll()
                         // Everything else requires authentication
                         .anyRequest().authenticated()
@@ -59,10 +60,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // Vite dev server
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "http://localhost:3000"   // ← add this
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(true);  // ← back to true
         return new UrlBasedCorsConfigurationSource() {{
             registerCorsConfiguration("/**", config);
         }};
