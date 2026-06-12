@@ -1,6 +1,7 @@
 // src/main/java/com/taskflow/card/CardService.java
 package com.taskflow.taskflow_api.card;
 
+import com.taskflow.taskflow_api.activity.ActivityLogService;
 import com.taskflow.taskflow_api.board.BoardColumn;
 import com.taskflow.taskflow_api.board.BoardColumnRepository;
 import com.taskflow.taskflow_api.board.BoardService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -23,6 +25,7 @@ public class CardService {
     private final BoardColumnRepository boardColumnRepository;
     private final BoardService boardService;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     // 🟢 Injected the Publisher
     private final WebSocketEventPublisher eventPublisher;
@@ -59,6 +62,10 @@ public class CardService {
         eventPublisher.publishCardCreated(boardId, currentUser.getId(),
                 currentUser.getUsername(), response);
 
+        activityLogService.log(boardId, currentUser, "CARD_CREATED",
+                Map.of("cardId", card.getId(), "cardTitle", card.getTitle(),
+                        "columnId", column.getId(), "columnName", column.getName()));
+
         return response; // The duplicate return statement below this was removed
     }
 
@@ -87,6 +94,8 @@ public class CardService {
 
         eventPublisher.publishCardUpdated(boardId, currentUser.getId(),
                 currentUser.getUsername(), response);
+        activityLogService.log(boardId, currentUser, "CARD_UPDATED",
+                Map.of("cardId", card.getId(), "cardTitle", card.getTitle()));
 
         return response;
     }
@@ -122,6 +131,10 @@ public class CardService {
         eventPublisher.publishCardMoved(boardId, currentUser.getId(),
                 currentUser.getUsername(), response);
 
+        activityLogService.log(boardId, currentUser, "CARD_MOVED",
+                Map.of("cardId", card.getId(), "cardTitle", card.getTitle(),
+                        "toColumnId", targetColumnId));
+
         return response;
     }
 
@@ -134,6 +147,9 @@ public class CardService {
         UUID boardId = card.getColumn().getBoard().getId();
         eventPublisher.publishCardDeleted(boardId, currentUser.getId(),
                 currentUser.getUsername(), card.getId());
+
+        activityLogService.log(boardId, currentUser, "CARD_DELETED",
+                Map.of("cardId", cardId, "cardTitle", card.getTitle()));
 
         cardRepository.delete(card);
     }
