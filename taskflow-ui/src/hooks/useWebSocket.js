@@ -9,6 +9,7 @@ export function useWebSocket(boardId) {
     const clientRef = useRef(null)
     const applyEvent = useBoardStore(s => s.applyEvent)
     const accessToken = useAuthStore(s => s.accessToken)
+    const pushEvent = useBoardStore(s => s.pushEvent)
 
     useEffect(() => {
         if (!boardId || !accessToken) return
@@ -23,6 +24,7 @@ export function useWebSocket(boardId) {
                     try {
                         const event = JSON.parse(msg.body)
                         applyEvent(event)
+                        pushEvent(event)
                     } catch (e) {
                         console.error('WS parse error', e)
                     }

@@ -5,6 +5,11 @@ export const useBoardStore = create((set, get) => ({
     board: null,
     loading: false,
 
+    recentEvents: [],
+    pushEvent: (event) => set(state => ({
+        recentEvents: [event, ...state.recentEvents].slice(0, 50) // Aluth ewa udata enna
+    })),
+
     setBoard: (board) => set({ board }),
 
     // Called when a WebSocket event arrives

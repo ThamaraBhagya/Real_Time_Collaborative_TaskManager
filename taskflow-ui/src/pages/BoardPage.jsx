@@ -5,16 +5,24 @@ import { getBoard, addColumn } from '../api/boards'
 import { useBoardStore } from '../store/boardStore'
 import { useWebSocket } from '../hooks/useWebSocket'
 import KanbanBoard from '../components/board/KanbanBoard'
+import ActivityFeed from '../components/board/ActivityFeed' // Make sure this file exists!
 import toast from 'react-hot-toast'
-import { ArrowLeft, Plus, Users } from 'lucide-react'
+import { ArrowLeft, Plus, Users, Activity } from 'lucide-react'
 
 export default function BoardPage() {
     const { boardId } = useParams()
     const navigate = useNavigate()
-    const { board, setBoard } = useBoardStore()
+
     const [loading, setLoading] = useState(true)
     const [addingColumn, setAddingColumn] = useState(false)
     const [columnName, setColumnName] = useState('')
+    const [showActivity, setShowActivity] = useState(false)
+
+    const { board, setBoard, recentEvents } = useBoardStore(s => ({
+        board: s.board,
+        setBoard: s.setBoard,
+        recentEvents: s.recentEvents
+    }))
 
     // Connect to WebSocket for this board
     useWebSocket(boardId)
@@ -26,7 +34,7 @@ export default function BoardPage() {
             .finally(() => setLoading(false))
 
         return () => setBoard(null)
-    }, [boardId])
+    }, [boardId, setBoard])
 
     const handleAddColumn = async (e) => {
         e.preventDefault()
@@ -35,7 +43,7 @@ export default function BoardPage() {
             await addColumn(boardId, { name: columnName.trim() })
             setColumnName('')
             setAddingColumn(false)
-            // WS event adds column to store
+            // WS event adds column to store automatically
         } catch {
             toast.error('Failed to add column')
         }
@@ -61,6 +69,8 @@ export default function BoardPage() {
             <header className="flex items-center justify-between px-6 py-4 flex-shrink-0"
                     style={{borderBottom:'1px solid var(--border)',
                         background:'var(--bg-secondary)'}}>
+
+                {/* Left Side: Back Button & Title */}
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/dashboard')}
                             className="p-2 rounded-lg transition-all"
@@ -79,7 +89,9 @@ export default function BoardPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Right Side: Members, Add Column, Activity Button */}
+                <div className="flex items-center gap-4">
+
                     {/* Member avatars */}
                     <div className="flex -space-x-2">
                         {board.members?.slice(0, 4).map(m => (
@@ -93,7 +105,7 @@ export default function BoardPage() {
                         ))}
                     </div>
 
-                    {/* Add column */}
+                    {/* Add column Button/Form */}
                     {addingColumn ? (
                         <form onSubmit={handleAddColumn} className="flex items-center gap-2">
                             <input
@@ -127,12 +139,42 @@ export default function BoardPage() {
                             <Plus size={14}/> Add column
                         </button>
                     )}
+
+                    {/* Activity Toggle Button */}
+                    <button
+                        onClick={() => setShowActivity(v => !v)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all"
+                        style={{
+                            border:'1px solid',
+                            color: showActivity ? 'var(--accent)' : 'var(--text-secondary)',
+                            borderColor: showActivity ? 'var(--accent)' : 'var(--border)',
+                            background: showActivity ? 'var(--bg-hover)' : 'transparent'
+                        }}
+                    >
+                        <Activity size={14}/> Activity
+                    </button>
                 </div>
             </header>
 
-            {/* Board content */}
-            <div className="flex-1 overflow-hidden">
-                <KanbanBoard board={board}/>
+            {/* Board content & Activity Sidebar */}
+            <div className="flex-1 overflow-hidden flex">
+
+                {/* Main Kanban Board */}
+                <div className="flex-1 overflow-hidden">
+                    <KanbanBoard board={board}/>
+                </div>
+
+                {/* Activity Feed Sidebar */}
+                {showActivity && (
+                    <div className="w-80 border-l flex flex-col"
+                         style={{background:'var(--bg-secondary)', borderColor:'var(--border)'}}>
+                        <ActivityFeed
+                            boardId={boardId}
+                            onClose={() => setShowActivity(false)}
+                            newEvents={recentEvents}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     )
