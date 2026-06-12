@@ -4,6 +4,7 @@ package com.taskflow.taskflow_api.board;
 import com.taskflow.taskflow_api.board.dto.*;
 import com.taskflow.taskflow_api.user.User;
 import com.taskflow.taskflow_api.user.UserRepository;
+import com.taskflow.taskflow_api.websocket.WebSocketEventPublisher; // 🟢 IMPORT ADDED
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ public class BoardService {
     private final BoardMemberRepository boardMemberRepository;
     private final BoardColumnRepository boardColumnRepository;
     private final UserRepository userRepository;
+
+    // 🟢 1. INJECTED THE PUBLISHER HERE
+    private final WebSocketEventPublisher eventPublisher;
 
     @Transactional
     public BoardResponse createBoard(BoardRequest request, User currentUser) {
@@ -152,12 +156,20 @@ public class BoardService {
                 .position(nextPosition)
                 .build());
 
-        return BoardResponse.ColumnResponse.builder()
+
+        BoardResponse.ColumnResponse columnResponse = BoardResponse.ColumnResponse.builder()
                 .id(column.getId())
                 .name(column.getName())
                 .position(column.getPosition())
                 .cards(List.of())
                 .build();
+
+
+        eventPublisher.publishColumnCreated(boardId, currentUser.getId(),
+                currentUser.getUsername(), columnResponse);
+
+
+        return columnResponse;
     }
 
     @Transactional

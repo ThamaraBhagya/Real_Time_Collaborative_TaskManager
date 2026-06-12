@@ -7,6 +7,7 @@ import com.taskflow.taskflow_api.board.BoardService;
 import com.taskflow.taskflow_api.card.dto.*;
 import com.taskflow.taskflow_api.user.User;
 import com.taskflow.taskflow_api.user.UserRepository;
+import com.taskflow.taskflow_api.websocket.WebSocketEventPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class CardService {
     private final BoardColumnRepository boardColumnRepository;
     private final BoardService boardService;
     private final UserRepository userRepository;
+
+    // 🟢 Injected the Publisher
+    private final WebSocketEventPublisher eventPublisher;
 
     @Transactional
     public CardResponse createCard(UUID columnId, CardRequest request, User currentUser) {
@@ -49,7 +53,13 @@ public class CardService {
                 .position(position)
                 .build());
 
-        return toResponse(card);
+        // 🟢 Broadcast the event
+        UUID boardId = column.getBoard().getId();
+        CardResponse response = toResponse(card);
+        eventPublisher.publishCardCreated(boardId, currentUser.getId(),
+                currentUser.getUsername(), response);
+
+        return response; // The duplicate return statement below this was removed
     }
 
     @Transactional
@@ -70,7 +80,15 @@ public class CardService {
             card.setAssignee(null);
         }
 
-        return toResponse(cardRepository.save(card));
+        // 🟢 Broadcast the event after saving
+        Card savedCard = cardRepository.save(card);
+        UUID boardId = savedCard.getColumn().getBoard().getId();
+        CardResponse response = toResponse(savedCard);
+
+        eventPublisher.publishCardUpdated(boardId, currentUser.getId(),
+                currentUser.getUsername(), response);
+
+        return response;
     }
 
     @Transactional
@@ -96,13 +114,27 @@ public class CardService {
         card.setPosition(newPosition);
         card.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(cardRepository.save(card));
+        // 🟢 Broadcast the event after saving
+        Card savedCard = cardRepository.save(card);
+        UUID boardId = savedCard.getColumn().getBoard().getId();
+        CardResponse response = toResponse(savedCard);
+
+        eventPublisher.publishCardMoved(boardId, currentUser.getId(),
+                currentUser.getUsername(), response);
+
+        return response;
     }
 
     @Transactional
     public void deleteCard(UUID cardId, User currentUser) {
         Card card = getCardAndAssertAccess(cardId, currentUser);
         cardRepository.shiftCardsUp(card.getColumn().getId(), card.getPosition());
+
+        // 🟢 Broadcast the event BEFORE deleting it from the database
+        UUID boardId = card.getColumn().getBoard().getId();
+        eventPublisher.publishCardDeleted(boardId, currentUser.getId(),
+                currentUser.getUsername(), card.getId());
+
         cardRepository.delete(card);
     }
 
@@ -114,6 +146,7 @@ public class CardService {
     }
 
     private CardResponse toResponse(Card card) {
+        // ... (this method remains exactly the same)
         return CardResponse.builder()
                 .id(card.getId())
                 .columnId(card.getColumn().getId())
