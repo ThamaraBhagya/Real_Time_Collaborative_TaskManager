@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
-    private final BoardService boardService;
+
 
     // @Async so it never slows down the main request thread
     @Async
@@ -34,7 +34,7 @@ public class ActivityLogService {
     public List<ActivityLogResponse> getBoardActivity(UUID boardId,
                                                       User currentUser,
                                                       int page) {
-        boardService.assertMember(boardId, currentUser.getId());
+
 
         return activityLogRepository
                 .findByBoardId(boardId, PageRequest.of(page, 30))

@@ -54,6 +54,43 @@ public class WebSocketEventPublisher {
                 boardId, actorId, actorUsername, memberInfo));
     }
 
+    // Add these methods to WebSocketEventPublisher.java
+
+    public void publishColumnUpdated(UUID boardId, UUID actorId,
+                                     String actorUsername, Object columnResponse) {
+        publish(BoardEvent.of(BoardEvent.EventType.COLUMN_UPDATED,
+                boardId, actorId, actorUsername, columnResponse));
+    }
+
+    public void publishColumnDeleted(UUID boardId, UUID actorId,
+                                     String actorUsername, UUID columnId) {
+        publish(BoardEvent.of(BoardEvent.EventType.COLUMN_DELETED,
+                boardId, actorId, actorUsername, columnId));
+    }
+
+    public void publishMemberRemoved(UUID boardId, UUID actorId,
+                                     String actorUsername, UUID removedUserId) {
+        publish(BoardEvent.of(BoardEvent.EventType.MEMBER_REMOVED,
+                boardId, actorId, actorUsername, removedUserId));
+    }
+
+    public void publishMemberRoleUpdated(UUID boardId, UUID actorId,
+                                         String actorUsername, Object memberInfo) {
+        publish(BoardEvent.of(BoardEvent.EventType.MEMBER_ROLE_UPDATED,
+                boardId, actorId, actorUsername, memberInfo));
+    }
+
+    public void publishBoardUpdated(UUID boardId, UUID actorId,
+                                    String actorUsername, Object boardInfo) {
+        publish(BoardEvent.of(BoardEvent.EventType.BOARD_UPDATED,
+                boardId, actorId, actorUsername, boardInfo));
+    }
+
+    public void publishBoardDeleted(UUID boardId, UUID actorId, String actorUsername) {
+        publish(BoardEvent.of(BoardEvent.EventType.BOARD_DELETED,
+                boardId, actorId, actorUsername, null));
+    }
+
     private void publish(BoardEvent event) {
         String channel = BOARD_CHANNEL_PREFIX + event.getBoardId();
 

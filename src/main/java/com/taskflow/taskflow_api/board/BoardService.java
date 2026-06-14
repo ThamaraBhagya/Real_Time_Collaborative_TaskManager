@@ -4,13 +4,16 @@ package com.taskflow.taskflow_api.board;
 import com.taskflow.taskflow_api.board.dto.*;
 import com.taskflow.taskflow_api.user.User;
 import com.taskflow.taskflow_api.user.UserRepository;
-import com.taskflow.taskflow_api.websocket.WebSocketEventPublisher; // 🟢 IMPORT ADDED
+import com.taskflow.taskflow_api.websocket.WebSocketEventPublisher;
+import com.taskflow.taskflow_api.activity.ActivityLogService; // 🟢 IMPORT ADDED
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -21,9 +24,10 @@ public class BoardService {
     private final BoardMemberRepository boardMemberRepository;
     private final BoardColumnRepository boardColumnRepository;
     private final UserRepository userRepository;
-
-    // 🟢 1. INJECTED THE PUBLISHER HERE
     private final WebSocketEventPublisher eventPublisher;
+
+    // 🟢 INJECTED ACTIVITY LOG SERVICE
+    private final ActivityLogService activityLogService;
 
     @Transactional
     public BoardResponse createBoard(BoardRequest request, User currentUser) {
@@ -32,7 +36,7 @@ public class BoardService {
                 .description(request.getDescription())
                 .owner(currentUser)
                 .build();
-        boardRepository.save(board);
+        boardRepository.saveAndFlush(board);
 
         // Creator is automatically an ADMIN member
         BoardMember member = BoardMember.builder()
@@ -51,6 +55,10 @@ public class BoardService {
                     .position(i)
                     .build());
         }
+
+        // 🟢 LOG: Board Creation
+        activityLogService.log(board.getId(), currentUser, "BOARD_CREATED",
+                Map.of("name", board.getName()));
 
         return getBoardById(board.getId(), currentUser);
     }
@@ -139,6 +147,19 @@ public class BoardService {
                 .user(userToAdd)
                 .role(request.getRole())
                 .build());
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(boardId, currentUser, "MEMBER_ADDED",
+                Map.of("username", userToAdd.getUsername(), "role", request.getRole()));
+
+        eventPublisher.publishMemberAdded(boardId, currentUser.getId(),
+                currentUser.getUsername(),
+                BoardResponse.MemberResponse.builder()
+                        .userId(userToAdd.getId())
+                        .username(userToAdd.getUsername())
+                        .avatarUrl(userToAdd.getAvatarUrl())
+                        .role(request.getRole())
+                        .build());
     }
 
     @Transactional
@@ -156,7 +177,6 @@ public class BoardService {
                 .position(nextPosition)
                 .build());
 
-
         BoardResponse.ColumnResponse columnResponse = BoardResponse.ColumnResponse.builder()
                 .id(column.getId())
                 .name(column.getName())
@@ -164,10 +184,12 @@ public class BoardService {
                 .cards(List.of())
                 .build();
 
+        // 🟢 LOG: Column Creation
+        activityLogService.log(boardId, currentUser, "COLUMN_CREATED",
+                Map.of("name", column.getName()));
 
         eventPublisher.publishColumnCreated(boardId, currentUser.getId(),
                 currentUser.getUsername(), columnResponse);
-
 
         return columnResponse;
     }
@@ -175,6 +197,14 @@ public class BoardService {
     @Transactional
     public void deleteBoard(UUID boardId, User currentUser) {
         assertRole(boardId, currentUser.getId(), BoardRole.ADMIN);
+
+        // 🟢 1. Database eken makanna KALIN event eka broadcast karanna
+        eventPublisher.publishBoardDeleted(boardId, currentUser.getId(), currentUser.getUsername());
+
+        // 🟢 2. Log the activity
+        activityLogService.log(boardId, currentUser, "BOARD_DELETED", Map.of());
+
+        // 🟢 3. Delete from Database
         boardRepository.deleteById(boardId);
     }
 
@@ -194,5 +224,109 @@ public class BoardService {
             if (member.getRole() == role) return;
         }
         throw new RuntimeException("Access denied: insufficient role");
+    }
+
+    @Transactional
+    public BoardResponse updateBoard(UUID boardId, UpdateBoardRequest request, User currentUser) {
+        assertRole(boardId, currentUser.getId(), BoardRole.ADMIN);
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+        if (request.getName() != null && !request.getName().isBlank())
+            board.setName(request.getName());
+        if (request.getDescription() != null)
+            board.setDescription(request.getDescription());
+        board.setUpdatedAt(LocalDateTime.now());
+
+        boardRepository.save(board);
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(boardId, currentUser, "BOARD_UPDATED",
+                Map.of("name", board.getName()));
+
+        eventPublisher.publishBoardUpdated(boardId, currentUser.getId(),
+                currentUser.getUsername(),
+                Map.of("name", board.getName(),
+                        "description", board.getDescription() != null
+                                ? board.getDescription() : ""));
+
+        return getBoardById(boardId, currentUser);
+    }
+
+    @Transactional
+    public void removeMember(UUID boardId, UUID targetUserId, User currentUser) {
+        assertRole(boardId, currentUser.getId(), BoardRole.ADMIN);
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+        if (board.getOwner().getId().equals(targetUserId))
+            throw new RuntimeException("Cannot remove the board owner");
+
+        eventPublisher.publishMemberRemoved(boardId, currentUser.getId(),
+                currentUser.getUsername(), targetUserId);
+
+        boardMemberRepository.deleteById(new BoardMemberId(boardId, targetUserId));
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(boardId, currentUser, "MEMBER_REMOVED",
+                Map.of("userId", targetUserId.toString()));
+    }
+
+    @Transactional
+    public void updateMemberRole(UUID boardId, UUID targetUserId,
+                                 BoardRole newRole, User currentUser) {
+        assertRole(boardId, currentUser.getId(), BoardRole.ADMIN);
+        BoardMember member = boardMemberRepository
+                .findByBoardIdAndUserId(boardId, targetUserId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        member.setRole(newRole);
+
+        boardMemberRepository.save(member);
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(boardId, currentUser, "MEMBER_ROLE_UPDATED",
+                Map.of("userId", targetUserId.toString(), "role", newRole.name()));
+
+        eventPublisher.publishMemberRoleUpdated(boardId, currentUser.getId(),
+                currentUser.getUsername(),
+                Map.of("userId", targetUserId, "role", newRole));
+    }
+
+    @Transactional
+    public BoardResponse.ColumnResponse renameColumn(UUID columnId,
+                                                     String name, User currentUser) {
+        BoardColumn column = boardColumnRepository.findById(columnId)
+                .orElseThrow(() -> new RuntimeException("Column not found"));
+        assertRole(column.getBoard().getId(), currentUser.getId(),
+                BoardRole.ADMIN, BoardRole.MEMBER);
+        column.setName(name);
+
+        boardColumnRepository.save(column);
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(column.getBoard().getId(), currentUser, "COLUMN_UPDATED",
+                Map.of("columnId", column.getId().toString(), "name", name));
+
+        eventPublisher.publishColumnUpdated(column.getBoard().getId(),
+                currentUser.getId(), currentUser.getUsername(),
+                Map.of("id", column.getId(), "name", name));
+
+        return BoardResponse.ColumnResponse.builder()
+                .id(column.getId()).name(name)
+                .position(column.getPosition()).cards(List.of()).build();
+    }
+
+    @Transactional
+    public void deleteColumn(UUID columnId, User currentUser) {
+        BoardColumn column = boardColumnRepository.findById(columnId)
+                .orElseThrow(() -> new RuntimeException("Column not found"));
+        assertRole(column.getBoard().getId(), currentUser.getId(), BoardRole.ADMIN);
+
+        eventPublisher.publishColumnDeleted(column.getBoard().getId(),
+                currentUser.getId(), currentUser.getUsername(), columnId);
+
+        // 🟢 ADDED LOG HERE
+        activityLogService.log(column.getBoard().getId(), currentUser, "COLUMN_DELETED",
+                Map.of("columnId", columnId.toString(), "name", column.getName()));
+
+        boardColumnRepository.delete(column);
     }
 }

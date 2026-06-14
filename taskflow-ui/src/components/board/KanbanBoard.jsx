@@ -4,7 +4,6 @@ import {
     DndContext, DragOverlay, PointerSensor,
     useSensor, useSensors, closestCorners
 } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
 import KanbanColumn from './KanbanColumn'
 import KanbanCard from './KanbanCard'
 import CardModal from './CardModal'
@@ -85,7 +84,11 @@ export default function KanbanBoard({ board }) {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div className="flex gap-4 p-6 overflow-x-auto min-h-full">
+                {/* 🟢 Board Layout Container */}
+                <div style={{
+                    display: 'flex', gap: '20px', padding: '24px 32px',
+                    overflowX: 'auto', minHeight: '100%', alignItems: 'flex-start'
+                }}>
                     {[...(board.columns || [])]
                         .sort((a, b) => a.position - b.position)
                         .map(column => (
@@ -97,10 +100,18 @@ export default function KanbanBoard({ board }) {
                         ))}
                 </div>
 
-                {/* Ghost card shown while dragging */}
-                <DragOverlay>
+                {/* 🟢 Premium Ghost Card shown while dragging */}
+                <DragOverlay dropAnimation={{
+                    duration: 250,
+                    easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                }}>
                     {activeCard && (
-                        <div style={{transform:'rotate(2deg)', opacity:0.9}}>
+                        <div style={{
+                            transform: 'rotate(3deg) scale(1.05)',
+                            opacity: 0.95, cursor: 'grabbing',
+                            boxShadow: '0 24px 48px rgba(0,0,0,0.5), 0 0 0 2px var(--accent)',
+                            borderRadius: '12px', overflow: 'hidden'
+                        }}>
                             <KanbanCard card={activeCard} onClick={() => {}}/>
                         </div>
                     )}

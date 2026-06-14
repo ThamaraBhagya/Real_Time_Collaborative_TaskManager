@@ -67,4 +67,49 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(boardService.addColumn(boardId, request, currentUser)));
     }
+
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
+            @PathVariable UUID boardId,
+            @RequestBody UpdateBoardRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                boardService.updateBoard(boardId, request, currentUser)));
+    }
+
+    @DeleteMapping("/{boardId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable UUID boardId,
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal User currentUser) {
+        boardService.removeMember(boardId, userId, currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{boardId}/members/{userId}")
+    public ResponseEntity<ApiResponse<Void>> updateMemberRole(
+            @PathVariable UUID boardId,
+            @PathVariable UUID userId,
+            @Valid @RequestBody UpdateMemberRoleRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        boardService.updateMemberRole(boardId, userId, request.getRole(), currentUser);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Role updated"));
+    }
+
+    @PatchMapping("/columns/{columnId}")
+    public ResponseEntity<ApiResponse<BoardResponse.ColumnResponse>> renameColumn(
+            @PathVariable UUID columnId,
+            @RequestBody ColumnRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                boardService.renameColumn(columnId, request.getName(), currentUser)));
+    }
+
+    @DeleteMapping("/columns/{columnId}")
+    public ResponseEntity<Void> deleteColumn(
+            @PathVariable UUID columnId,
+            @AuthenticationPrincipal User currentUser) {
+        boardService.deleteColumn(columnId, currentUser);
+        return ResponseEntity.noContent().build();
+    }
 }

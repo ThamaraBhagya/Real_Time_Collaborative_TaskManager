@@ -1,6 +1,7 @@
 // src/main/java/com/taskflow/activity/ActivityLogController.java
 package com.taskflow.taskflow_api.activity;
 
+import com.taskflow.taskflow_api.board.BoardService;
 import com.taskflow.taskflow_api.common.response.ApiResponse;
 import com.taskflow.taskflow_api.user.User;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,15 @@ import java.util.UUID;
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
+    private final BoardService boardService; // ← permission check lives here now
+
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ActivityLogResponse>>> getActivity(
             @PathVariable UUID boardId,
             @RequestParam(defaultValue = "0") int page,
             @AuthenticationPrincipal User currentUser) {
+        boardService.assertMember(boardId, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.ok(
                 activityLogService.getBoardActivity(boardId, currentUser, page)));
     }

@@ -25,9 +25,13 @@ public class BoardEvent {
         CARD_MOVED,
         CARD_DELETED,
         COLUMN_CREATED,
-        COLUMN_DELETED,
+        COLUMN_UPDATED,    // ← new
+        COLUMN_DELETED,    // ← new
         MEMBER_ADDED,
-        BOARD_UPDATED
+        MEMBER_REMOVED,    // ← new
+        MEMBER_ROLE_UPDATED, // ← new
+        BOARD_UPDATED,
+        BOARD_DELETED
     }
 
     public static BoardEvent of(EventType type, UUID boardId,
