@@ -46,7 +46,7 @@ public class User implements UserDetails {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // --- UserDetails methods (Spring Security needs these) ---
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -54,7 +54,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() { return email; } // Spring Security uses email as username
+    public String getUsername() { return email; }
 
     @Override
     public boolean isAccountNonExpired()  { return true; }

@@ -55,7 +55,7 @@ export default function KanbanCard({ card, onClick }) {
                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)'
                  }}>
 
-                {/* 🏷️ Top Row: Badges (Priority & Date) */}
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <span style={{
                         fontSize: '11px', fontWeight: 700, padding: '4px 8px',
@@ -79,7 +79,7 @@ export default function KanbanCard({ card, onClick }) {
                     )}
                 </div>
 
-                {/* 📝 Middle: Title & Description */}
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <p style={{
                         fontSize: '15px', fontWeight: 600, lineHeight: '1.4',
@@ -91,7 +91,7 @@ export default function KanbanCard({ card, onClick }) {
                         {card.title}
                     </p>
 
-                    {/* 🟢 FIXED: Check if description actually has text before rendering */}
+
                     {card.description && card.description.trim().length > 0 && (
                         <div style={{
                             fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0 0',

@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/activity/ActivityLogRepository.java
+
 package com.taskflow.taskflow_api.activity;
 
 import org.springframework.data.domain.Page;

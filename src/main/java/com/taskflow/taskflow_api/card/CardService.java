@@ -27,7 +27,7 @@ public class CardService {
     private final UserRepository userRepository;
     private final ActivityLogService activityLogService;
 
-    // 🟢 Injected the Publisher
+
     private final WebSocketEventPublisher eventPublisher;
 
     @Transactional
@@ -56,7 +56,7 @@ public class CardService {
                 .position(position)
                 .build());
 
-        // 🟢 Broadcast the event
+
         UUID boardId = column.getBoard().getId();
         CardResponse response = toResponse(card);
         eventPublisher.publishCardCreated(boardId, currentUser.getId(),
@@ -87,7 +87,7 @@ public class CardService {
             card.setAssignee(null);
         }
 
-        // 🟢 Broadcast the event after saving
+
         Card savedCard = cardRepository.save(card);
         UUID boardId = savedCard.getColumn().getBoard().getId();
         CardResponse response = toResponse(savedCard);
@@ -108,13 +108,13 @@ public class CardService {
         UUID targetColumnId = request.getTargetColumnId();
         int newPosition = request.getNewPosition();
 
-        // Remove from source column — shift remaining cards up
+
         cardRepository.shiftCardsUp(sourceColumnId, card.getPosition());
 
-        // Make room in target column at the new position
+
         cardRepository.shiftCardsDown(targetColumnId, newPosition);
 
-        // Move card
+
         if (!sourceColumnId.equals(targetColumnId)) {
             BoardColumn targetColumn = boardColumnRepository.findById(targetColumnId)
                     .orElseThrow(() -> new RuntimeException("Target column not found"));
@@ -123,7 +123,7 @@ public class CardService {
         card.setPosition(newPosition);
         card.setUpdatedAt(LocalDateTime.now());
 
-        // 🟢 Broadcast the event after saving
+
         Card savedCard = cardRepository.save(card);
         UUID boardId = savedCard.getColumn().getBoard().getId();
         CardResponse response = toResponse(savedCard);

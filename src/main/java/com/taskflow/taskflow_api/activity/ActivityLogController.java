@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
-    private final BoardService boardService; // ← permission check lives here now
+    private final BoardService boardService;
 
 
     @GetMapping

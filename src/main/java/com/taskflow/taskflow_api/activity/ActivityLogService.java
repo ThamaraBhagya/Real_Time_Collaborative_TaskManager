@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/activity/ActivityLogService.java
+
 package com.taskflow.taskflow_api.activity;
 
 import com.taskflow.taskflow_api.board.BoardService;

@@ -20,7 +20,7 @@ export default function CardModal({ card, onClose }) {
         description: card.description || '',
         priority:    card.priority,
         assigneeId:  card.assigneeId || '',
-        // 🟢 FIX: Slice to 10 characters to get YYYY-MM-DD format for pure date picker
+
         dueDate:     card.dueDate
             ? new Date(card.dueDate).toISOString().slice(0, 10) : '',
     })
@@ -38,7 +38,7 @@ export default function CardModal({ card, onClose }) {
                 description: form.description,
                 priority:    form.priority,
                 assigneeId:  form.assigneeId || null,
-                // Append a default time or let backend handle the pure date string
+
                 dueDate:     form.dueDate ? new Date(form.dueDate).toISOString() : null,
             })
             toast.success('Card updated successfully')
@@ -180,7 +180,7 @@ export default function CardModal({ card, onClose }) {
                             }}>
                                 <Calendar size={14} /> Due date
                             </label>
-                            {/* 🟢 FIX: Changed to type="date" and added showPicker() */}
+
                             <input type="date"
                                    value={form.dueDate}
                                    onClick={e => e.target.showPicker && e.target.showPicker()}

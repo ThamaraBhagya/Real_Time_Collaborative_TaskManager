@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/activity/ActivityLog.java
+
 package com.taskflow.taskflow_api.activity;
 
 import com.taskflow.taskflow_api.user.User;
@@ -28,7 +28,7 @@ public class ActivityLog {
     private User user;
 
     @Column(nullable = false)
-    private String action;   // "CARD_MOVED", "CARD_CREATED", etc.
+    private String action;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

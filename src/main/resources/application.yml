@@ -30,7 +30,7 @@ spring:
       port: 6379
 
 jwt:
-  secret:
+  secret: ${JWT_SECRET:meka-thama-mage-local-secret-key-eka-123456789}
   access-token-expiry: 900000       # 15 minutes
   refresh-token-expiry: 604800000   # 7 days
 

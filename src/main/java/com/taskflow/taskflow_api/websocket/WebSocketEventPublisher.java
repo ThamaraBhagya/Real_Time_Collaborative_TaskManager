@@ -15,7 +15,7 @@ import static com.taskflow.taskflow_api.config.RedisConfig.BOARD_CHANNEL_PREFIX;
 @RequiredArgsConstructor
 public class WebSocketEventPublisher {
 
-    // 🟢 1. Inject your smart custom RedisTemplate instead of the String one
+
     private final RedisTemplate<String, Object> boardEventRedisTemplate;
 
     public void publishCardCreated(UUID boardId, UUID actorId,
@@ -54,7 +54,7 @@ public class WebSocketEventPublisher {
                 boardId, actorId, actorUsername, memberInfo));
     }
 
-    // Add these methods to WebSocketEventPublisher.java
+
 
     public void publishColumnUpdated(UUID boardId, UUID actorId,
                                      String actorUsername, Object columnResponse) {
@@ -94,7 +94,7 @@ public class WebSocketEventPublisher {
     private void publish(BoardEvent event) {
         String channel = BOARD_CHANNEL_PREFIX + event.getBoardId();
 
-        // 🟢 2. Send the Java Object directly! The template handles the JSON conversion automatically.
+
         boardEventRedisTemplate.convertAndSend(channel, event);
 
         log.debug("Published {} to Redis channel {}", event.getType(), channel);

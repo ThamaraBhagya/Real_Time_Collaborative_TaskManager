@@ -15,7 +15,7 @@ public class BoardEventSubscriber {
     private final SimpMessagingTemplate messagingTemplate;
     private final JsonMapper redisObjectMapper;
 
-    // Called by Redis MessageListenerAdapter when a message arrives
+
     public void onMessage(String message, String channel) {
         try {
             BoardEvent event = redisObjectMapper.readValue(message, BoardEvent.class);

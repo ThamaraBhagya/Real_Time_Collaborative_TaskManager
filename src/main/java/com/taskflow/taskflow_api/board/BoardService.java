@@ -26,7 +26,7 @@ public class BoardService {
     private final UserRepository userRepository;
     private final WebSocketEventPublisher eventPublisher;
 
-    // 🟢 INJECTED ACTIVITY LOG SERVICE
+
     private final ActivityLogService activityLogService;
 
     @Transactional
@@ -56,7 +56,7 @@ public class BoardService {
                     .build());
         }
 
-        // 🟢 LOG: Board Creation
+
         activityLogService.log(board.getId(), currentUser, "BOARD_CREATED",
                 Map.of("name", board.getName()));
 
@@ -81,7 +81,7 @@ public class BoardService {
         Board board = boardRepository.findByIdWithColumns(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
-        // Members loaded in a second query automatically via findByIdWithMembers
+
         Board boardWithMembers = boardRepository.findByIdWithMembers(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
@@ -148,7 +148,7 @@ public class BoardService {
                 .role(request.getRole())
                 .build());
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(boardId, currentUser, "MEMBER_ADDED",
                 Map.of("username", userToAdd.getUsername(), "role", request.getRole()));
 
@@ -184,7 +184,7 @@ public class BoardService {
                 .cards(List.of())
                 .build();
 
-        // 🟢 LOG: Column Creation
+
         activityLogService.log(boardId, currentUser, "COLUMN_CREATED",
                 Map.of("name", column.getName()));
 
@@ -198,13 +198,13 @@ public class BoardService {
     public void deleteBoard(UUID boardId, User currentUser) {
         assertRole(boardId, currentUser.getId(), BoardRole.ADMIN);
 
-        // 🟢 1. Database eken makanna KALIN event eka broadcast karanna
+
         eventPublisher.publishBoardDeleted(boardId, currentUser.getId(), currentUser.getUsername());
 
-        // 🟢 2. Log the activity
+
         activityLogService.log(boardId, currentUser, "BOARD_DELETED", Map.of());
 
-        // 🟢 3. Delete from Database
+
         boardRepository.deleteById(boardId);
     }
 
@@ -239,7 +239,7 @@ public class BoardService {
 
         boardRepository.save(board);
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(boardId, currentUser, "BOARD_UPDATED",
                 Map.of("name", board.getName()));
 
@@ -265,7 +265,7 @@ public class BoardService {
 
         boardMemberRepository.deleteById(new BoardMemberId(boardId, targetUserId));
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(boardId, currentUser, "MEMBER_REMOVED",
                 Map.of("userId", targetUserId.toString()));
     }
@@ -281,7 +281,7 @@ public class BoardService {
 
         boardMemberRepository.save(member);
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(boardId, currentUser, "MEMBER_ROLE_UPDATED",
                 Map.of("userId", targetUserId.toString(), "role", newRole.name()));
 
@@ -301,7 +301,7 @@ public class BoardService {
 
         boardColumnRepository.save(column);
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(column.getBoard().getId(), currentUser, "COLUMN_UPDATED",
                 Map.of("columnId", column.getId().toString(), "name", name));
 
@@ -323,7 +323,7 @@ public class BoardService {
         eventPublisher.publishColumnDeleted(column.getBoard().getId(),
                 currentUser.getId(), currentUser.getUsername(), columnId);
 
-        // 🟢 ADDED LOG HERE
+
         activityLogService.log(column.getBoard().getId(), currentUser, "COLUMN_DELETED",
                 Map.of("columnId", columnId.toString(), "name", column.getName()));
 

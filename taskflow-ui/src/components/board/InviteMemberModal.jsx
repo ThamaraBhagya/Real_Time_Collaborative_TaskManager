@@ -4,7 +4,7 @@ import { addMember } from '../../api/boards'
 import toast from 'react-hot-toast'
 import { X, UserPlus, Shield, User, Eye } from 'lucide-react'
 
-// 🟢 Roles walata lassan icons ekathu kala
+
 const ROLES = [
     { value: 'ADMIN',  desc: 'Can manage board, members and all cards', icon: Shield },
     { value: 'MEMBER', desc: 'Can create, edit and move cards', icon: User },

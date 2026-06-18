@@ -20,7 +20,7 @@ public class BoardWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    // Browser sends: /app/board/{boardId}/typing
+
     // Everyone on that board sees who is typing
     @MessageMapping("/board/{boardId}/typing")
     public void handleTyping(@DestinationVariable UUID boardId,
@@ -37,7 +37,7 @@ public class BoardWebSocketController {
         );
     }
 
-    // Browser sends: /app/board/{boardId}/join
+
     // Announces a user has opened the board
     @MessageMapping("/board/{boardId}/join")
     public void handleJoin(@DestinationVariable UUID boardId,
@@ -47,7 +47,7 @@ public class BoardWebSocketController {
 
         messagingTemplate.convertAndSend(
                 "/topic/board/" + boardId + "/presence",
-                // 🟢 FIXED: Added (Object) cast here too!
+
                 (Object) Map.of("type", "USER_JOINED", "username", username)
         );
         log.debug("User {} joined board {}", username, boardId);

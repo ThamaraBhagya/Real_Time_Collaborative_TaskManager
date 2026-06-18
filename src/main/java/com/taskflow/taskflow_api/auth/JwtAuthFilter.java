@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/auth/JwtAuthFilter.java
+
 package com.taskflow.taskflow_api.auth;
 
 import com.taskflow.taskflow_api.user.UserRepository;
@@ -32,7 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // No token → continue the filter chain unauthenticated
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -44,12 +44,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
         } catch (Exception e) {
-            // Malformed or expired token — continue unauthenticated
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Only proceed if not already authenticated
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userRepository.findByEmail(userEmail).orElse(null);
 

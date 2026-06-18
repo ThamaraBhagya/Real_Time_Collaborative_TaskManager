@@ -39,7 +39,7 @@ export default function KanbanBoard({ board }) {
         const sourceColumn = findColumnOfCard(cardId)
         if (!sourceColumn) return
 
-        // Dropped on a column or a card?
+
         const overIsColumn = over.data.current?.type === 'column'
         const targetColumnId = overIsColumn
             ? over.id
@@ -58,7 +58,7 @@ export default function KanbanBoard({ board }) {
             newPosition = overIndex >= 0 ? overIndex : cards.length
         }
 
-        // Optimistic update — update UI immediately, API call in background
+
         const updatedBoard = structuredClone(board)
         const srcCol = updatedBoard.columns.find(c => c.id === sourceColumn.id)
         const card = srcCol.cards.find(c => c.id === cardId)
@@ -84,7 +84,7 @@ export default function KanbanBoard({ board }) {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                {/* 🟢 Board Layout Container */}
+
                 <div style={{
                     display: 'flex', gap: '20px', padding: '24px 32px',
                     overflowX: 'auto', minHeight: '100%', alignItems: 'flex-start'
@@ -100,7 +100,7 @@ export default function KanbanBoard({ board }) {
                         ))}
                 </div>
 
-                {/* 🟢 Premium Ghost Card shown while dragging */}
+
                 <DragOverlay dropAnimation={{
                     duration: 250,
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',

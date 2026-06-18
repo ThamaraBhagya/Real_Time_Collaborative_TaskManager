@@ -39,7 +39,7 @@ export default function BoardSettingsModal({ board, onClose, onUpdate }) {
             onClose() // Settings modal eka wahanawa
             navigate('/dashboard')
         } catch (error) {
-            // 🟢 403 Admin permission check eka
+
             if (error.response && error.response.status === 403) {
                 toast.error('Only Admins can delete this board!')
             } else {

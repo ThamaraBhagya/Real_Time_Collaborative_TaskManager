@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/activity/ActivityLogResponse.java
+
 package com.taskflow.taskflow_api.activity;
 
 import lombok.Builder;

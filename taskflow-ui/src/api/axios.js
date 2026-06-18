@@ -15,25 +15,25 @@ api.interceptors.response.use(
     async err => {
         const original = err.config
 
-        // Error eka 401 Unauthorized nam saha kalin try karala nathnam vitharai
+
         if (err.response?.status === 401 && !original._retry) {
             original._retry = true
 
             try {
                 const refresh = localStorage.getItem('refreshToken')
-                if (!refresh) throw new Error('No refresh token') // Refresh token ekath nathnam kelinma catch ekata yawanawa
+                if (!refresh) throw new Error('No refresh token')
 
                 const { data } = await axios.post('/api/auth/refresh', { refreshToken: refresh })
 
                 localStorage.setItem('accessToken', data.accessToken)
                 original.headers.Authorization = `Bearer ${data.accessToken}`
 
-                return api(original) // Failed wunu request eka aayeth yawanawa
+                return api(original)
             } catch {
-                // 🟢 THE FIX: State ekai LocalStorage ekai dekam clear karanawa
+
                 localStorage.removeItem('accessToken')
                 localStorage.removeItem('refreshToken')
-                useAuthStore.getState().clearAuth() // Zustand store eka clear karanawa
+                useAuthStore.getState().clearAuth()
                 window.location.href = '/login'
             }
         }
