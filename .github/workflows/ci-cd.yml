@@ -1,0 +1,149 @@
+# .github/workflows/ci-cd.yml
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ${{ github.repository_owner }}/taskflow-api
+  FRONTEND_IMAGE: ${{ github.repository_owner }}/taskflow-ui
+
+jobs:
+  # ─────────────────────────────────────────────
+  # CI — backend build + test
+  # ─────────────────────────────────────────────
+  backend-ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: taskflow_test
+          POSTGRES_USER: taskflow_user
+          POSTGRES_PASSWORD: taskflow_pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test
+
+        run: mvn verify -q
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/taskflow_test
+          SPRING_DATASOURCE_USERNAME: taskflow_user
+          SPRING_DATASOURCE_PASSWORD: taskflow_pass
+          SPRING_DATA_REDIS_HOST: localhost
+          JWT_SECRET: dGVzdC1zZWNyZXQtZm9yLWNpLWVudmlyb25tZW50
+
+  # ─────────────────────────────────────────────
+  # CI — frontend build
+  # ─────────────────────────────────────────────
+  frontend-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: taskflow-ui/package-lock.json
+
+      - name: Install and build
+        working-directory: taskflow-ui
+        run: |
+          npm ci
+          npm run build
+
+  # ─────────────────────────────────────────────
+  # CD — build & push Docker images to GHCR
+  # Only runs if BOTH CI jobs passed, and only on main
+  # ─────────────────────────────────────────────
+  build-and-push:
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # required to push to GHCR
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ---- Backend image ----
+      - name: Extract backend metadata
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ---- Frontend image ----
+      - name: Extract frontend metadata
+        id: meta-frontend
+        uses: docker/metadata-action@v5D
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./taskflow-ui
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
