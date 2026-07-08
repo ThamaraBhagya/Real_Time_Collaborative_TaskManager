@@ -3,6 +3,9 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+*.log
+hs_err_pid*.log
+.env
 
 ### STS ###
 .apt_generated
