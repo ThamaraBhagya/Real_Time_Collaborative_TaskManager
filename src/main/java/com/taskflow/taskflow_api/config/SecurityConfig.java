@@ -42,11 +42,11 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints — no token needed
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/ws/**",
-                                "/ws/info**" // WebSocket endpoint (Phase 4)
+                                "/ws/info**"
                         ).permitAll()
                         // Everything else requires authentication
                         .anyRequest().authenticated()

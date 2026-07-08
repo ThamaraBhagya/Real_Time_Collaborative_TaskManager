@@ -82,7 +82,7 @@ export default function InviteMemberModal({ boardId, onClose, onInvited }) {
                     </button>
                 </div>
 
-                {/* ⚙️ Body */}
+                {/* ⚙ Body */}
                 <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                     {/* Username Input */}

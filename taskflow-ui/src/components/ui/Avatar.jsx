@@ -32,7 +32,7 @@ export default function Avatar({ username, avatarUrl, size = 32 }) {
                 ...commonStyles,
                 background: 'linear-gradient(135deg, var(--accent) 0%, rgba(99, 102, 241, 0.7) 100%)',
                 color: '#fff',
-                fontSize: Math.max(10, size * 0.4), // Size eka anuwa akuru auto loku wenawa
+                fontSize: Math.max(10, size * 0.4),
                 fontWeight: 600,
                 textTransform: 'uppercase'
             }}

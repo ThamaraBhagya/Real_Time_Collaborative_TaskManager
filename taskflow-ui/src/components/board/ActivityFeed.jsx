@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import api from '../../api/axios'
 import { X, Activity, Clock } from 'lucide-react'
-import Avatar from '../ui/Avatar' // 🟢 Api kalin hadapu Avatar eka
+import Avatar from '../ui/Avatar'
 
 const ACTION_LABELS = {
     BOARD_CREATED:       { label: 'created the board',      color: '#10b981' },
@@ -20,7 +20,7 @@ const ACTION_LABELS = {
     CARD_DELETED:        { label: 'deleted card',           color: '#ef4444' },
 }
 
-// Helper to extract the right target name from the payload based on the action
+
 const getTargetName = (action, payload) => {
     if (!payload) return null;
     if (action.includes('CARD')) return payload.cardTitle;

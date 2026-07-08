@@ -62,7 +62,7 @@ export default function MembersPanel({ board, onClose, onUpdate }) {
                 display: 'flex', flexDirection: 'column', maxHeight: '85vh'
             }}>
 
-                {/* 📝 Header */}
+                {/*  Header */}
                 <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '20px 24px', borderBottom: '1px solid var(--border)',
@@ -99,7 +99,7 @@ export default function MembersPanel({ board, onClose, onUpdate }) {
                     </button>
                 </div>
 
-                {/* 👥 Members List */}
+                {/*  Members List */}
                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
                     {board.members?.map(member => {
                         const meta = ROLE_META[member.role]

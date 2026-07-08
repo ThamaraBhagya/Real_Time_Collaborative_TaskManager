@@ -1,4 +1,4 @@
-# .github/workflows/ci-cd.yml
+
 name: CI/CD
 
 on:
@@ -13,9 +13,9 @@ env:
   FRONTEND_IMAGE: ${{ github.repository_owner }}/taskflow-ui
 
 jobs:
-  # ─────────────────────────────────────────────
+
   # CI — backend build + test
-  # ─────────────────────────────────────────────
+
   backend-ci:
     runs-on: ubuntu-latest
     services:
@@ -62,9 +62,9 @@ jobs:
           SPRING_DATA_REDIS_HOST: localhost
           JWT_SECRET: dGVzdC1zZWNyZXQtZm9yLWNpLWVudmlyb25tZW50
 
-  # ─────────────────────────────────────────────
+
   # CI — frontend build
-  # ─────────────────────────────────────────────
+
   frontend-ci:
     runs-on: ubuntu-latest
     steps:
@@ -83,17 +83,16 @@ jobs:
           npm ci
           npm run build
 
-  # ─────────────────────────────────────────────
+
   # CD — build & push Docker images to GHCR
-  # Only runs if BOTH CI jobs passed, and only on main
-  # ─────────────────────────────────────────────
+
   build-and-push:
     needs: [backend-ci, frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write   # required to push to GHCR
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +107,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # ---- Backend image ----
+      # Backend image
       - name: Extract backend metadata
         id: meta-backend
         uses: docker/metadata-action@v5
@@ -128,7 +127,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ---- Frontend image ----
+      # Frontend image
       - name: Extract frontend metadata
         id: meta-frontend
         uses: docker/metadata-action@v5

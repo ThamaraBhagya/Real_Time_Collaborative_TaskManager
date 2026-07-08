@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/card/dto/CardResponse.java
+
 package com.taskflow.taskflow_api.card.dto;
 
 import com.taskflow.taskflow_api.card.CardPriority;

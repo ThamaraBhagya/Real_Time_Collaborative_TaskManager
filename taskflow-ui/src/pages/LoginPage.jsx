@@ -34,7 +34,7 @@ export default function LoginPage() {
             minHeight: '100vh', display: 'flex',
             background: 'var(--bg-primary)', position: 'relative', overflow: 'hidden'
         }}>
-            {/* 🎨 Background Decorative Glow Effects */}
+
             <div style={{
                 position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px',
                 background: 'var(--accent)', filter: 'blur(150px)', opacity: 0.15, borderRadius: '50%', zIndex: 0
@@ -48,7 +48,7 @@ export default function LoginPage() {
                 width: '100%', maxWidth: 420, margin: 'auto', padding: '0 24px', zIndex: 10,
                 animation: 'fadeIn 0.4s ease-out'
             }}>
-                {/* 📝 Header Section */}
+                {/*  Header Section */}
                 <div style={{ textAlign: 'center', marginBottom: 40 }}>
                     <div style={{
                         width: 56, height: 56, borderRadius: 16,
@@ -66,7 +66,7 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                {/* 🗂️ Login Card */}
+                {/*  Login Card */}
                 <div style={{
                     background: 'var(--bg-card)', borderRadius: 24,
                     border: '1px solid var(--border)', padding: '32px 28px',
@@ -144,7 +144,7 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                {/* 🔗 Footer Link */}
+                {/*  Footer Link */}
                 <p style={{
                     textAlign: 'center', marginTop: 32,
                     fontSize: 14, color: 'var(--text-muted)'

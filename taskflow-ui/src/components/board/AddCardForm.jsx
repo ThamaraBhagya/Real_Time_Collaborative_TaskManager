@@ -25,7 +25,7 @@ export default function AddCardForm({ columnId, onClose }) {
             await createCard(columnId, {
                 title: title.trim()
             })
-            // WS event will add it to store automatically
+
             setTitle('')
             onClose()
         } catch {
@@ -67,7 +67,7 @@ export default function AddCardForm({ columnId, onClose }) {
                 />
             </div>
 
-            {/* Action Buttons */}
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
                 <button type="submit" disabled={loading || !title.trim()}
                         style={{

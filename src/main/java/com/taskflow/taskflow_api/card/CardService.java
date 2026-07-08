@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/card/CardService.java
+
 package com.taskflow.taskflow_api.card;
 
 import com.taskflow.taskflow_api.activity.ActivityLogService;
@@ -143,7 +143,7 @@ public class CardService {
         Card card = getCardAndAssertAccess(cardId, currentUser);
         cardRepository.shiftCardsUp(card.getColumn().getId(), card.getPosition());
 
-        // 🟢 Broadcast the event BEFORE deleting it from the database
+
         UUID boardId = card.getColumn().getBoard().getId();
         eventPublisher.publishCardDeleted(boardId, currentUser.getId(),
                 currentUser.getUsername(), card.getId());
@@ -162,7 +162,7 @@ public class CardService {
     }
 
     private CardResponse toResponse(Card card) {
-        // ... (this method remains exactly the same)
+
         return CardResponse.builder()
                 .id(card.getId())
                 .columnId(card.getColumn().getId())

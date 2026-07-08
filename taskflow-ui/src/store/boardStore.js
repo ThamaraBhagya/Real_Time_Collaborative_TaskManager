@@ -8,7 +8,7 @@ export const useBoardStore = create((set, get) => ({
 
     isDeleted: false,
 
-    // 🟢 2. Board eka load weddi meka auto False wenna oni
+
     setBoard: (board) => set({ board, isDeleted: false }),
 
     pushEvent: (event) => set(state => ({
@@ -21,7 +21,7 @@ export const useBoardStore = create((set, get) => ({
 
         if (event.type === 'BOARD_DELETED') {
             set({ board: null, isDeleted: true })
-            return // Switch case ekata yanna epa!
+            return
         }
 
         set(state => {
@@ -44,11 +44,11 @@ export const useBoardStore = create((set, get) => ({
                 }
 
                 case 'CARD_MOVED': {
-                    // Remove from whichever column currently holds it
+
                     for (const col of b.columns) {
                         col.cards = col.cards.filter(c => c.id !== event.payload.id)
                     }
-                    // Insert at correct position in target column
+
                     const targetCol = b.columns.find(c => c.id === event.payload.columnId)
                     if (targetCol) {
                         targetCol.cards.splice(event.payload.position, 0, event.payload)

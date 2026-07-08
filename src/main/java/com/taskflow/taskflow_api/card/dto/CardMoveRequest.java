@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/card/dto/CardMoveRequest.java
+
 package com.taskflow.taskflow_api.card.dto;
 
 import jakarta.validation.constraints.Min;

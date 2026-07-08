@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/board/Board.java
+
 package com.taskflow.taskflow_api.board;
 
 import com.taskflow.taskflow_api.user.User;

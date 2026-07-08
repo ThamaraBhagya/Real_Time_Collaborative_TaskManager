@@ -44,7 +44,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
                 }
             }
         }
-        return true; // Still allow connection — controller checks attributes
+        return true;
     }
 
     @Override

@@ -45,7 +45,7 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        // This throws if credentials are wrong — Spring handles it
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -59,7 +59,7 @@ public class AuthService {
     public AuthResponse refreshToken(TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        // Check if token is blacklisted (user logged out)
+
         if (redisTemplate.hasKey(BLACKLIST_PREFIX + refreshToken)) {
             throw new RuntimeException("Refresh token has been revoked");
         }
@@ -68,7 +68,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Validate stored token matches what's in Redis
+
         String storedToken = redisTemplate.opsForValue()
                 .get(REFRESH_TOKEN_PREFIX + user.getId());
 
@@ -80,7 +80,7 @@ public class AuthService {
             throw new RuntimeException("Refresh token expired");
         }
 
-        // Rotate: invalidate old refresh token, issue new pair
+
         blacklistToken(refreshToken);
         return buildAuthResponse(user);
     }
@@ -97,7 +97,7 @@ public class AuthService {
         String accessToken  = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        // Store refresh token in Redis with 7-day TTL
+
         redisTemplate.opsForValue().set(
                 REFRESH_TOKEN_PREFIX + user.getId(),
                 refreshToken,
@@ -115,7 +115,7 @@ public class AuthService {
     }
 
     private void blacklistToken(String token) {
-        // Store in blacklist until it naturally expires (7 days)
+
         redisTemplate.opsForValue().set(
                 BLACKLIST_PREFIX + token,
                 "revoked",

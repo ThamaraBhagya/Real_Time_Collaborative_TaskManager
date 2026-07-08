@@ -1,4 +1,4 @@
-// src/main/java/com/taskflow/common/exception/GlobalExceptionHandler.java
+
 package com.taskflow.taskflow_api.common.exception;
 
 import com.taskflow.taskflow_api.common.response.ApiResponse;
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors()
                 .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
 
-        // Wrap the validation errors inside our standard ApiResponse box
+
         return ResponseEntity.badRequest().body(
                 ApiResponse.<Map<String, String>>builder()
                         .success(false)

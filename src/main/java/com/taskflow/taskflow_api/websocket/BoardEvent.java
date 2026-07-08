@@ -16,7 +16,7 @@ public class BoardEvent {
     private UUID boardId;
     private UUID actorId;
     private String actorUsername;
-    private Object payload;   // CardResponse, ColumnResponse, etc.
+    private Object payload;
     private LocalDateTime timestamp;
 
     public enum EventType {
@@ -25,11 +25,11 @@ public class BoardEvent {
         CARD_MOVED,
         CARD_DELETED,
         COLUMN_CREATED,
-        COLUMN_UPDATED,    // ← new
-        COLUMN_DELETED,    // ← new
+        COLUMN_UPDATED,
+        COLUMN_DELETED,
         MEMBER_ADDED,
-        MEMBER_REMOVED,    // ← new
-        MEMBER_ROLE_UPDATED, // ← new
+        MEMBER_REMOVED,
+        MEMBER_ROLE_UPDATED,
         BOARD_UPDATED,
         BOARD_DELETED
     }

@@ -25,7 +25,7 @@ export default function PriorityBadge({ priority }) {
             fontSize: '11px',
             fontWeight: 600,
             letterSpacing: '0.03em',
-            textTransform: 'capitalize', // URGENT kiyana eka 'Urgent' kiyala lassanata penewi
+            textTransform: 'capitalize',
             lineHeight: 1
         }}>
             <Icon size={12} strokeWidth={2.5} />

@@ -160,7 +160,7 @@ export default function BoardSettingsModal({ board, onClose, onUpdate }) {
 
                     <div style={{ margin: '8px 0', borderTop: '1px solid var(--border)' }} />
 
-                    {/* ⚠️ Danger Zone */}
+
                     <div style={{
                         borderRadius: '12px', padding: '20px',
                         background: 'rgba(239,68,68,0.04)',

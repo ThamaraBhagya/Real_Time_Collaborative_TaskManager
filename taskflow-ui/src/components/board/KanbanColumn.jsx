@@ -151,7 +151,7 @@ export default function KanbanColumn({ column, onCardClick }) {
                 </div>
             </div>
 
-            {/* 🗂️ Cards Area */}
+            {/* Cards Area */}
             <div ref={setNodeRef}
                  style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px 12px' }}>
                 <SortableContext items={cards.map(c => c.id)}
@@ -167,7 +167,7 @@ export default function KanbanColumn({ column, onCardClick }) {
                 )}
             </div>
 
-            {/* ➕ Add Card Button (Footer) */}
+            {/*  Add Card Button (Footer) */}
             {!adding && (
                 <div style={{ padding: '0 12px 12px 12px' }}>
                     <button onClick={() => setAdding(true)}
@@ -185,7 +185,7 @@ export default function KanbanColumn({ column, onCardClick }) {
                 </div>
             )}
 
-            {/* 🛑 Delete Confirmation Modal */}
+            {/*  Delete Confirmation Modal */}
             <ConfirmModal
                 isOpen={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
