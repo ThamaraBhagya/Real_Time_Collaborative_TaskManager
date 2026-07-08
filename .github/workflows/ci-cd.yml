@@ -131,7 +131,7 @@ jobs:
       # ---- Frontend image ----
       - name: Extract frontend metadata
         id: meta-frontend
-        uses: docker/metadata-action@v5D
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}
           tags: |
