@@ -150,7 +150,7 @@ jobs:
 
     # CD — deploy to EC2 by pulling latest images
 
-    deploy:
+  deploy:
       needs: build-and-push
       runs-on: ubuntu-latest
       steps:
